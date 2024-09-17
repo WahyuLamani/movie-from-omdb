@@ -2,6 +2,7 @@
 import Cards from "@/components/cards";
 import CardsSkeleton from "@/components/cardskeleton";
 import Modal from "@/components/modal";
+import Pagination from "@/components/pagination";
 import { fetching } from "@/lib/action";
 import { formAction } from "@/lib/utils";
 import { searchSchema } from "@/lib/validation";
@@ -15,20 +16,35 @@ interface SearchRespons {
 
 export default function Searching() {
     const [display, setDisplay] = useState(false);
+    const [currentPage, setCurrentPage] = useState(1);
     const [error, setError] = useState<Record<string, string>>({});
     const [movies, setMovies] = useState<MoviesInterface>({
         Response: "",
         Search: [],
         totalResults: "",
     });
+    const [param, setParam] = useState({
+        y: "",
+        s: "",
+    });
+    const itemPerPage = movies.Search.length;   
+    const totalPage = Math.ceil(parseInt(movies.totalResults) / itemPerPage);
+    const getData = async (data: Search) => {
+        const results: MoviesInterface = await fetching(
+            `y=${data.y}&s=${data.s}&page=${currentPage}`
+        );
+        return setMovies(results);
+    };
     const submitForm = async (e: any) => {
         const { data, success }: SearchRespons = formAction(e, searchSchema);
         if (success) {
             setError({});
             const results: MoviesInterface = await fetching(
-                `y=${data.y}&s=${data.s}`
+                `y=${data.y}&s=${data.s}&page=${currentPage}`
             );
+            setParam(data);
             setDisplay(true);
+            console.log(results);
             setMovies(results);
         } else {
             const errorMessage: Record<string, string> = {};
@@ -92,11 +108,23 @@ export default function Searching() {
                     </button>
                 </form>
             </div>
-            
-            <div className={clsx("mt-5", { hidden: !display })}>
-                <Suspense fallback={<CardsSkeleton />}>
-                    <Cards movies={movies} />
-                </Suspense>
+
+            <div className="mt-5">
+                {display && (
+                    <>
+                        <Suspense fallback={<CardsSkeleton />}>
+                            <Cards movies={movies} />
+                        </Suspense>
+                        <Pagination
+                            currentPage={currentPage}
+                            totalPages={totalPage}
+                            onPageChange={(page: number) => {
+                                setCurrentPage(page);
+                                getData(param);
+                            }}
+                        />
+                    </>
+                )}
             </div>
         </div>
     );
