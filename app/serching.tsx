@@ -7,7 +7,7 @@ import { fetching } from "@/lib/action";
 import { formAction } from "@/lib/utils";
 import { searchSchema } from "@/lib/validation";
 import clsx from "clsx";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 
 interface SearchRespons {
     success: boolean;
@@ -17,6 +17,7 @@ interface SearchRespons {
 export default function Searching() {
     const [display, setDisplay] = useState(false);
     const [currentPage, setCurrentPage] = useState(1);
+    const [totalPage, setTotalPage] = useState(0);
     const [error, setError] = useState<Record<string, string>>({});
     const [movies, setMovies] = useState<MoviesInterface>({
         Response: "",
@@ -27,8 +28,15 @@ export default function Searching() {
         y: "",
         s: "",
     });
-    const itemPerPage = movies.Search.length;   
-    const totalPage = Math.ceil(parseInt(movies.totalResults) / itemPerPage);
+    useEffect(() => {
+        if (movies.totalResults)
+            setTotalPage(
+                Math.ceil(parseInt(movies.totalResults) / movies.Search.length)
+            );
+    }, [param]);
+    useEffect(() => {
+        if (display) getData(param);
+    }, [currentPage]);
     const getData = async (data: Search) => {
         const results: MoviesInterface = await fetching(
             `y=${data.y}&s=${data.s}&page=${currentPage}`
@@ -36,6 +44,7 @@ export default function Searching() {
         return setMovies(results);
     };
     const submitForm = async (e: any) => {
+        e.preventDefault();
         const { data, success }: SearchRespons = formAction(e, searchSchema);
         if (success) {
             setError({});
@@ -115,14 +124,15 @@ export default function Searching() {
                         <Suspense fallback={<CardsSkeleton />}>
                             <Cards movies={movies} />
                         </Suspense>
-                        <Pagination
-                            currentPage={currentPage}
-                            totalPages={totalPage}
-                            onPageChange={(page: number) => {
-                                setCurrentPage(page);
-                                getData(param);
-                            }}
-                        />
+                        {totalPage > 1 && (
+                            <Pagination
+                                currentPage={currentPage}
+                                totalPages={totalPage}
+                                onPageChange={(page: number) => {
+                                    setCurrentPage(page);
+                                }}
+                            />
+                        )}
                     </>
                 )}
             </div>
