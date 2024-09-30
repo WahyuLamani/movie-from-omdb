@@ -5,7 +5,7 @@ import Pusher from "pusher-js";
 
 export default function Chat() {
     const [messages, setMessages] = useState<string[]>([]);
-
+    // redeploy
     useEffect(() => {
         const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY!, {
             cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
