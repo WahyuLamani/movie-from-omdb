@@ -38,22 +38,24 @@ export default function Details({ imdb }: { imdb: string }) {
         result();
     }, [imdb]);
     return (
-        <>
+        <div className="px-6 py-4">
             {/* Poster */}
-            <img
-                className="w-full h-80 object-cover"
-                src={movie.Poster}
-                alt={`${movie.Title} Poster`}
-            />
-
-            <div className="px-6 py-4">
+            <div className="flex gap-3 mb-4">
+                <img
+                    className="w-auto h-auto max-h-80 object-cover"
+                    src={movie.Poster}
+                    alt={`${movie.Title} Poster`}
+                />
                 {/* Title and Year */}
-                <div className="font-bold text-xl mb-2">
-                    {movie.Title} ({movie.Year})
+                <div>
+                    <div className="font-bold text-xl mb-2">
+                        {movie.Title} ({movie.Year})
+                    </div>
+                    {/* Plot */}
+                    <p className="text-gray-700 text-base mb-4">{movie.Plot}</p>
                 </div>
-                {/* Plot */}
-                <p className="text-gray-700 text-base mb-4">{movie.Plot}</p>
-
+            </div>
+            <div className="">
                 {/* Movie Details */}
                 <ul className="text-sm text-gray-600 mb-2">
                     <li>
@@ -105,14 +107,14 @@ export default function Details({ imdb }: { imdb: string }) {
                 {movie.Website !== "N/A" && (
                     <a
                         href={movie.Website}
+                        className="text-blue-500 hover:underline cursor-pointer"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-500 hover:underline"
                     >
                         Official Website
                     </a>
                 )}
             </div>
-        </>
+        </div>
     );
 }
