@@ -55,6 +55,7 @@ export default function Searching() {
             setDisplay(true);
             console.log(results);
             setMovies(results);
+            setCurrentPage(1);
         } else {
             const errorMessage: Record<string, string> = {};
             Object.entries(data).forEach(([key, value]) => {
